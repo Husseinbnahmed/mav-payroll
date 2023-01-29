@@ -6,7 +6,7 @@ import re
 import helper_functions as x
 import altair as alt
 
-
+st. set_page_config(layout="wide") 
 st.title(""" How It Works 	:grey_question:""")
 st.caption("""
 To get started, simply upload files/schedules in excel format. 
