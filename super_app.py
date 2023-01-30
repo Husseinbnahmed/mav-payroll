@@ -6,8 +6,6 @@ import re
 import helper_functions as x
 import altair as alt
 
-st.set_page_config(page_title="Maverick Payroll", page_icon=":sun_with_face:", layout="wide")
-
 
 st.title(""" How It Works 	:grey_question:""")
 st.caption("""
@@ -27,6 +25,8 @@ with st.form(key='my_form'):
     st.subheader("1- Upload Time Sheets")
 
     files_names = st.file_uploader("📗 Choose an excel file to upload", accept_multiple_files = True, help="You can upload multiple files at once")
+    st.write(len(files_names), "files uploaded")
+    
     st.write("                                                       ")
     st.subheader("2- Provide sheet name ")
     sheet_name = st.text_input("📄 example: 1-16 to 1-29", help="Make sure it matches exactly your tab name in the excel file")
@@ -44,6 +44,7 @@ with st.form(key='my_form'):
             transformed_file_week2['Building Name'] = building_name
             df_list.append(transformed_file) #save returned dataframe to a list named df_list
             df_list_week_two.append(transformed_file_week2)
+            st.success("Successfully uploaded {}".format(file.name))
 
     else:
         st.caption(" No files uploaded")
