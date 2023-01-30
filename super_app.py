@@ -6,6 +6,8 @@ import re
 import helper_functions as x
 import altair as alt
 
+st.set_page_config(page_title="Maverick Payroll", page_icon=":sun_with_face:", layout="wide")
+st.set_theme("light")
 
 st.title(""" How It Works 	:grey_question:""")
 st.caption("""
