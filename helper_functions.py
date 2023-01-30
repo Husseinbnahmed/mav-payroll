@@ -213,3 +213,7 @@ def transform_schedule_week2(file_name, sheet_name):
     merged_df = pd.merge(left=df1, right=df2, left_index=True, right_index=True)
 
     return   merged_df
+
+def find_employee_names(df):
+    names = df['Employee Name'].apply(lambda x: f"{x.split()[-1]} {x.split()[0]}")
+    return names
