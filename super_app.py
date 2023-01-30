@@ -79,9 +79,6 @@ try:
     c_figure = (c + c_text).properties(height=300, width=900)
     st.altair_chart(c_figure)
 
-    #checks and balances 
-    #week one dates uploaded and processed
-
-# except:
-#     st.warning("Please upload a file before proceeding.")
+except:
+    st.warning("Please upload a file before proceeding.")
    
