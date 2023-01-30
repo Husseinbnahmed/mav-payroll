@@ -6,7 +6,7 @@ import re
 import helper_functions as x
 import altair as alt
 
-st. set_page_config(layout="wide") 
+
 st.title(""" How It Works 	:grey_question:""")
 st.caption("""
 To get started, simply upload files/schedules in excel format. 
@@ -57,6 +57,8 @@ try:
     df = x.hours_worked(df) #apply the hours worked function to determine by employee
     final_df = x.process_hours(df)
     grouped_final_view = final_df.groupby("Employee Name").agg({"Holiday Hours":"sum", "Regular Hours":"sum", "Overtime Hours":"sum"})
+    grouped_final_view = grouped_final_view.reset_index(drop=False)
+    grouped_final_view['Employee Name'] = x.find_employee_names(grouped_final_view)
 
     st.dataframe(grouped_final_view.style.format({'Holiday Hours': '{:,.1f}', 'Regular Hours': '{:,.1f}', 'Overtime Hours': '{:,.1f}'}), width=1000) #render result on streamlit 
 
