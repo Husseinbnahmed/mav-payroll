@@ -46,39 +46,39 @@ with st.form(key='my_form'):
     else:
         st.caption(" No files uploaded")
 
-try: 
-    df_week_one = pd.concat(df_list, axis=0) #stack all files together
-    df_week_two = pd.concat(df_list_week_two, axis=0)
-    df = pd.concat([df_week_one, df_week_two], axis=0)
+# try: 
+df_week_one = pd.concat(df_list, axis=0) #stack all files together
+df_week_two = pd.concat(df_list_week_two, axis=0)
+df = pd.concat([df_week_one, df_week_two], axis=0)
 
-    df['holiday'] = df['Date'].apply(lambda x: 1 if x.date().isoformat() in holidays else 0) #adds a column that has the holidays in it
-    df['Date'] = pd.to_datetime(df['Date'])
-    df['Week of year'] = df['Date'].apply(lambda x: x.isocalendar()[1])
-    df = x.hours_worked(df) #apply the hours worked function to determine by employee
-    final_df = x.process_hours(df)
-    grouped_final_view = final_df.groupby("Employee Name").agg({"Holiday Hours":"sum", "Regular Hours":"sum", "Overtime Hours":"sum"})
-    grouped_final_view = grouped_final_view.reset_index(drop=False)
-    grouped_final_view['Employee Name'] = x.find_employee_names(grouped_final_view)
+df['holiday'] = df['Date'].apply(lambda x: 1 if x.date().isoformat() in holidays else 0) #adds a column that has the holidays in it
+df['Date'] = pd.to_datetime(df['Date'])
+df['Week of year'] = df['Date'].apply(lambda x: x.isocalendar()[1])
+df = x.hours_worked(df) #apply the hours worked function to determine by employee
+final_df = x.process_hours(df)
+grouped_final_view = final_df.groupby("Employee Name").agg({"Holiday Hours":"sum", "Regular Hours":"sum", "Overtime Hours":"sum"})
+grouped_final_view = grouped_final_view.reset_index(drop=False)
+grouped_final_view['Employee Name'] = x.find_employee_names(grouped_final_view)
 
-    st.dataframe(grouped_final_view.style.format({'Holiday Hours': '{:,.1f}', 'Regular Hours': '{:,.1f}', 'Overtime Hours': '{:,.1f}'}), width=1000) #render result on streamlit 
+st.dataframe(grouped_final_view.style.format({'Holiday Hours': '{:,.1f}', 'Regular Hours': '{:,.1f}', 'Overtime Hours': '{:,.1f}'}), width=1000) #render result on streamlit 
 
-    prcs_csv = x.convert_df(grouped_final_view)
-    st.download_button(
-        label=":arrow_down: Download to excel",
-        data=prcs_csv,
-        file_name='auto-report.csv',
-        mime='text/csv',)
-   
-    st.write("                                      ")
-    st.markdown("### Summary of hours worked by building")
+prcs_csv = x.convert_df(grouped_final_view)
+st.download_button(
+    label=":arrow_down: Download to excel",
+    data=prcs_csv,
+    file_name='auto-report.csv',
+    mime='text/csv',)
 
-    visual_df = df.groupby(["Building Name"]).agg({"Hours Worked":"sum"}).reset_index()
+st.write("                                      ")
+st.markdown("### Summary of hours worked by building")
 
-    c = alt.Chart(visual_df).mark_bar().encode(x = "Hours Worked", y="Building Name")
-    c_text = c.mark_text(align="left", baseline="middle", dx=3).encode(text="Hours Worked:Q")
-    c_figure = (c + c_text).properties(height=300, width=900)
-    st.altair_chart(c_figure)
+visual_df = df.groupby(["Building Name"]).agg({"Hours Worked":"sum"}).reset_index()
 
-except:
-    st.warning("Please upload a file before proceeding.")
+c = alt.Chart(visual_df).mark_bar().encode(x = "Hours Worked", y="Building Name")
+c_text = c.mark_text(align="left", baseline="middle", dx=3).encode(text="Hours Worked:Q")
+c_figure = (c + c_text).properties(height=300, width=900)
+st.altair_chart(c_figure)
+
+# except:
+st.warning("Please upload a file before proceeding.")
    
