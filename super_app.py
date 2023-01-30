@@ -82,6 +82,6 @@ try:
     #checks and balances 
     #week one dates uploaded and processed
 
-except:
-    st.warning("Please upload a file before proceeding.")
+# except:
+#     st.warning("Please upload a file before proceeding.")
    
