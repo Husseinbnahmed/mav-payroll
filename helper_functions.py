@@ -86,23 +86,6 @@ def hours_worked(merged_test_df):
     return merged_test_df
 
 
-# def get_building_name(file_name, sheet_name):
-#     """ Uses Regex to extract the name of the building"""
-#     df = pd.read_excel(file_name, sheet_name= sheet_name)
-#     text = df.iloc[:1]['Unnamed: 1'][0]
-    
-#     match = re.search(r'^(\w+)\s(Weekly|employees)', text, re.IGNORECASE)
-#     if match:
-#         x = match.group(1)
-#     else:
-#         match = re.search(r'^(\d+\s\w+)\s(Weekly|employees)', text, re.IGNORECASE)
-#         if match:
-#             x = match.group(1)
-#         else:
-#             x = None
-
-#     return x
-
 def get_building_name(file_name, sheet_name):
     """ Uses Regex to extract the name of the building"""
     df = pd.read_excel(file_name, sheet_name= sheet_name)
@@ -145,6 +128,32 @@ def process_hours(df):
         result = result.append({'Employee Name': name[0], 'Week of Year': name[1], 'Holiday Hours': holiday_hours, 'Regular Hours': regular_hours, 'Overtime Hours': overtime_hours}, ignore_index=True)
 
     return result
+
+def process_hours_show_month_year(df):
+    """
+    Takes a dataframe and categorizes the total hours by each employee into three categories (holliday, regular and overtime hours)
+
+    """
+
+    # Create a new DataFrame with the desired columns
+    result = pd.DataFrame(columns=['Employee Name', 'Year', 'Month', 'Holiday Hours', 'Regular Hours', 'Overtime Hours'])
+
+    df['Employee Name'] = df['Employee Name'].str.strip() #removes any white spaces that may be created by mistake
+    
+    # Group the data by employee and week of year
+    grouped = df.groupby(['Employee Name', 'Week of year'])
+    
+    # Iterate over each group and calculate the hours
+    for name, group in grouped:
+        holiday_hours = group[group['holiday'] == 1]['Hours Worked'].sum()
+        regular_hours = group[group['holiday'] == 0]['Hours Worked'].sum()
+        overtime_hours = 0
+        if regular_hours > 40:
+            overtime_hours = regular_hours - 40
+            regular_hours = 40
+            
+            
+        result = result.append({'Employee Name': name[0], 'Week of Year': name[1], 'Holiday Hours': holiday_hours, 'Regular Hours': regular_hours, 'Overtime Hours': overtime_hours}, ignore_index=True)
 
 def convert_df(df):
     df = df.sort_values(by="Employee Name", ascending=True)
@@ -214,10 +223,6 @@ def transform_schedule_week2(file_name, sheet_name):
 
     return   merged_df
 
-def find_employee_names(df):
-    names = df['Employee Name'].apply(lambda x: f"{x.split()[-1]} {x.split()[0]}")
-    return names
-
 def extract_hourly_rates(file_name , sheet_name):
 
     """
@@ -242,3 +247,62 @@ def extract_hourly_rates(file_name , sheet_name):
     hourly_rates_df = hourly_rates_df.set_index("Employee Name")
 
     return hourly_rates_df
+
+def find_employee_names(df):
+    names = df['Employee Name'].apply(lambda x: f"{x.split()[-1]} {x.split()[0]}")
+    return names
+
+def process_hours_version_2(df):
+    """
+    Takes a dataframe and categorizes the total hours by each employee into three categories (holliday, regular and overtime hours)
+
+    """
+
+    # Create a new DataFrame with the desired columns
+    result = pd.DataFrame(columns=['Employee Name', 'Month', 'Holiday Hours', 'Regular Hours', 'Overtime Hours'])
+
+    df['Employee Name'] = df['Employee Name'].str.strip() #removes any white spaces that may be created by mistake
+    
+    # Group the data by employee and week of year
+    grouped = df.groupby(['Employee Name', 'Week of year', 'Year', 'Month', 'Building Name'])
+    
+    # Iterate over each group and calculate the hours
+    for name, group in grouped:
+        holiday_hours = group[group['holiday'] == 1]['Hours Worked'].sum()
+        regular_hours = group[group['holiday'] == 0]['Hours Worked'].sum()
+        overtime_hours = 0
+        if regular_hours > 40:
+            overtime_hours = regular_hours - 40
+            regular_hours = 40
+        
+        month = group.loc[:,'Month']
+            
+            
+        result = result.append({'Employee Name': name[0], 'Month': name[3], 'Year':name[2], 'Building Name': name[4], 'Holiday Hours': holiday_hours, 'Regular Hours': regular_hours, 'Overtime Hours': overtime_hours}, ignore_index=True)
+
+    return result
+
+def extract_hourly_rates(file_name , sheet_name):
+
+    """
+    This function extracts the hourly rates of each employee in a schedule and aggregates the data by employee.
+    """
+    #read excel file from the file name and sheet name path
+    df = pd.read_excel(file_name, sheet_name)
+    #remove any text that contains employee, day, employees, date, total hours from column 17 (total hours) and column index 1 (employee name)
+    df = df[~df.iloc[:, 17].astype(str).str.contains("Employees|Day|Employee|Date|total hours", na=False) & 
+                    ~df.iloc[:, 1].astype(str).str.contains("Employees|Day|Employee|Date|total hours", na=False)]
+    # #r column is the hourly rate column, drop all na and turn to a list
+    r_column = df.iloc[:, 17].dropna().tolist()
+    # #b column is the employee name column, drop all na and turn to a list
+    b_column = df.iloc[:, 1].dropna().tolist()
+    # #create a new dataframe and name it hourly rates df, transpose it and rename the columns to human readable values
+    hourly_rates_df = pd.DataFrame([r_column, b_column]).T.rename(columns={0:"Hourly Rate", 1:"Employee Name"})
+    # #change data type of hourly rate into float
+    hourly_rates_df['Hourly Rate'] = hourly_rates_df['Hourly Rate'].astype("float")
+    # #group by employee name and get the average of hourly rate
+    hourly_rates_df = hourly_rates_df.groupby("Employee Name").agg({"Hourly Rate":"mean"}).reset_index()
+    # #set the employee name to be the index 
+    hourly_rates_df = hourly_rates_df.set_index("Employee Name")
+
+    return hourly_rates_df.fillna(17)
