@@ -217,3 +217,28 @@ def transform_schedule_week2(file_name, sheet_name):
 def find_employee_names(df):
     names = df['Employee Name'].apply(lambda x: f"{x.split()[-1]} {x.split()[0]}")
     return names
+
+def extract_hourly_rates(file_name , sheet_name):
+
+    """
+    This function extracts the hourly rates of each employee in a schedule and aggregates the data by employee.
+    """
+    #read excel file from the file name and sheet name path
+    df = pd.read_excel(file_name, sheet_name)
+    #remove any text that contains employee, day, employees, date, total hours from column 17 (total hours) and column index 1 (employee name)
+    df = df[~df.iloc[:, 17].astype(str).str.contains("Employees|Day|Employee|Date|total hours", na=False) & 
+                    ~df.iloc[:, 1].astype(str).str.contains("Employees|Day|Employee|Date|total hours", na=False)]
+    #r column is the hourly rate column, drop all na and turn to a list
+    r_column = df.iloc[:, 17].dropna().tolist()
+    #b column is the employee name column, drop all na and turn to a list
+    b_column = df.iloc[:, 1].dropna().tolist()
+    #create a new dataframe and name it hourly rates df, transpose it and rename the columns to human readable values
+    hourly_rates_df = pd.DataFrame([r_column, b_column]).T.rename(columns={0:"Hourly Rate", 1:"Employee Name"})
+    #change data type of hourly rate into float
+    hourly_rates_df['Hourly Rate'] = hourly_rates_df['Hourly Rate'].astype("float")
+    #group by employee name and get the average of hourly rate
+    hourly_rates_df = hourly_rates_df.groupby("Employee Name").agg({"Hourly Rate":"mean"}).reset_index()
+    #set the employee name to be the index 
+    hourly_rates_df = hourly_rates_df.set_index("Employee Name")
+
+    return hourly_rates_df
