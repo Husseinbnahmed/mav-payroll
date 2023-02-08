@@ -7,6 +7,8 @@ import helper_functions as x
 import altair as alt
 import plotly.express as px
 
+#configures the page layout
+st.set_page_config(layout="wide", page_title="Maverick Payroll Bot", page_icon="logo_transparent.png")
 
 st.title(""" 🤖 Maverick Payroll Bot""")
 st.caption("""
@@ -31,17 +33,24 @@ hourly_rates_list = []
 
 with st.form(key='my_form'):
     ##### USER INPUT #########
-    st.subheader("1- Upload Time Sheets")
+    st.subheader("1- Upload your excel files")
     files_names = st.file_uploader("📗 Choose an excel file to upload", accept_multiple_files = True, help="You can upload multiple files at once")
-    st.write(len(files_names), "files uploaded")
+    submit_button = st.form_submit_button(label='🧮 Check number of files uploaded')
+    if submit_button:
+    #write the number of files uploaded
+        st.write(len(files_names), "files uploaded")
+    else:
+    #if no files uploaded, print 0
+        st.write("0 files uploaded")
+    
     st.write("                                                       ")
-    st.subheader("2- Provide sheet name ")
+    st.subheader("2- Provide the name of the tab in your excel file")
     sheet_name = st.text_input("📄 example: 1-16 to 1-29", help="Make sure it matches exactly your tab name in the excel file")
     st.write("""                                                                         """)
-    st.subheader("3-  Click Submit")
+    st.subheader("3-Submit")
     submit_button = st.form_submit_button(label='✅ Submit')
 
-
+    #if files are uploaded, clean them and save them in a list  
     if submit_button:
 
         # for each file in the files uploaded (bi-weekly schedules)
@@ -114,7 +123,7 @@ try:
 
     #plotly chart visualizes hours worked by each building
     st.write("                                      ")
-    st.subheader("Summary of hours worked by building")
+    st.title("📊 Summary of hours worked by building")
     st.caption("The bar chart below summarizes the number of hours worked in each building during the period {}".format(sheet_name))
     visual_df = df.groupby(["Building Name"]).agg({"Hours Worked":"sum"}).reset_index().sort_values(by="Hours Worked", ascending=True)
     fig = px.bar(visual_df, x='Hours Worked', y='Building Name')
@@ -123,7 +132,7 @@ try:
 
     # calculates payroll in $ by building, accounts for overtime/holiday as 1.5x
     st.write("                                     ")
-    st.subheader("Summary of $ payroll by building")
+    st.title("💵 Summary of payroll by building in $")
     st.caption("The data below shows the $ spent by building on employees, broken down by Regular, OT and Holiday hours for the period {}".format(sheet_name))
     df = x.process_hours_version_2(df)
     df = df.join(hourly_rates_df, on="Employee Name", how="left")
@@ -144,8 +153,9 @@ try:
         data=cost_csv,
         file_name='payroll_by_building.csv',
         mime='text/csv',)
-    
+
 except:
+    #if no file uploaded, prints error message
     st.warning("Please upload a file before proceeding.")
 
 
