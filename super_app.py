@@ -45,10 +45,7 @@ with st.form(key='my_form'):
     
     st.write("                                                       ")
     st.subheader("2- Provide the name of the tab in your excel file")
-    try:
-       sheet_name = st.text_input("📄 example: 1-16 to 1-29", help="Make sure it matches exactly your tab name in the excel file")
-    except:
-       st.warning("Tab name is not found")
+    sheet_name = st.text_input("📄 example: 1-16 to 1-29", help="Make sure it matches exactly your tab name in the excel file")
       
     st.write("""                                                                         """)
     st.subheader("3-Submit")
@@ -63,6 +60,7 @@ with st.form(key='my_form'):
         for file in files_names: 
 
             #cleans xlsx file in a format that helps in calculating hours worked by employee
+   
             transformed_file = x.transform_schedule(file, sheet_name=sheet_name) 
             transformed_file_week2 = x.transform_schedule_week2(file, sheet_name=sheet_name)
             hourly_rates_function = x.extract_hourly_rates(file, sheet_name=sheet_name)
@@ -81,7 +79,7 @@ with st.form(key='my_form'):
 
             #prints success for user! 
             st.success("Successfully uploaded {}".format(file.name))
-
+        
     else:
         #avoids printing error to user, instead says no file uploaded
         st.caption(" No files uploaded")
