@@ -41,11 +41,15 @@ with st.form(key='my_form'):
         st.write(len(files_names), "files uploaded")
     else:
     #if no files uploaded, print 0
-        st.write("0 files uploaded")
+        st.write("No files uploaded")
     
     st.write("                                                       ")
     st.subheader("2- Provide the name of the tab in your excel file")
-    sheet_name = st.text_input("📄 example: 1-16 to 1-29", help="Make sure it matches exactly your tab name in the excel file")
+    try:
+       sheet_name = st.text_input("📄 example: 1-16 to 1-29", help="Make sure it matches exactly your tab name in the excel file")
+    except:
+       st.warning("Tab name is not found")
+      
     st.write("""                                                                         """)
     st.subheader("3-Submit")
     submit_button = st.form_submit_button(label='✅ Submit')
