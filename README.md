@@ -1,3 +1,2 @@
 # Payroll app for a small business
-this repo contains files related to maverick payroll app 
-This app automates payroll from 7 hours biweekly to less than 10 minutes, saving client aprox $10K in ann. value
+I was asked by a small business to help them build an internal application that tally's up the number of hours worked by each employee broken down by regular, overtime and holiday hours. The user would then use this data to upload it to PayChex ( a well known Payroll solution). The challenge was that employee schedules were formatted in a specific way that the client didn't want to change and each payroll period contained 40 excel files that needed to be accessed, transformed, and finally cleaned up in a format suitable for analysis. Previous to this app, the client tallied up the employee hours by hand in a pen and paper taking them ~7 hours of work bi-weekly. This application automates this task and brings the time to value to <5 minutes
